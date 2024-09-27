@@ -167,6 +167,8 @@
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Collision.h" />
     <ClInclude Include="Core\Model.h" />
+    <ClInclude Include="Core\render.h" />
+    <ClInclude Include="Core\Setup.h" />
     <ClInclude Include="Core\Shaders.h" />
     <ClInclude Include="Core\Sphere.h" />
     <ClInclude Include="Core\Vertex.h" />
