@@ -12,8 +12,8 @@
 
 Shaders shaders;
 
-std::string vertexShaderSourceString = shaders.readFile("Shaders/Shader.vs");
-std::string fragmentShaderSourceString = shaders.readFile("Shaders/Shader.fs");
+std::string vertexShaderSourceString = shaders.readFile("Shader/Shader.vs");
+std::string fragmentShaderSourceString = shaders.readFile("Shader/Shader.fs");
 
 const char *vertexShaderSource = vertexShaderSourceString.c_str();
 const char *fragmentShaderSource = fragmentShaderSourceString.c_str();

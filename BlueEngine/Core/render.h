@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "Model.h"
-#include "Floor.h"
+
 #include "Sphere.h"
 #include "Collision.h"
 
@@ -12,7 +12,7 @@ Collision coll;
 
 
 Camera camera;
-Floor floors;
+
 bool firstMouse = true;
 
 float lastX = 960, lastY = 540;
@@ -47,18 +47,12 @@ bool inside;
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
         
-      floors.CreateFloor(floorModel);
         
         sphere.CreateSphere(SphereModel0);
       sphere.CreateSphere(SphereModel1);
       sphere.CreateSphere(SphereModel2);
       sphere.CreateSphere(SphereModel3);
         sphere.CreateSphere(SphereModel4);
-
-        floors.CreateFloor(ZWallP);
-        floors.CreateFloor(ZWallN);
-        floors.CreateFloor(XWallP);
-        floors.CreateFloor(XWallN);
 
 
         floorModel.PlayerPos = glm::vec3(0.f,0.f,0.f);

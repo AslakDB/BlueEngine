@@ -159,7 +159,10 @@
   <ItemGroup>
     <ClCompile Include="BlueEngine.cpp" />
     <ClCompile Include="Core\Camera.cpp" />
+    <ClCompile Include="Core\Collision.cpp" />
+    <ClCompile Include="Core\Model.cpp" />
     <ClCompile Include="Core\Shaders.cpp" />
+    <ClCompile Include="Core\Sphere.cpp" />
     <ClCompile Include="glad.c" />
   </ItemGroup>
   <ItemGroup>
@@ -172,6 +175,12 @@
     <ClInclude Include="Core\Shaders.h" />
     <ClInclude Include="Core\Sphere.h" />
     <ClInclude Include="Core\Vertex.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Shader\Shader.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Shader\Shader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
