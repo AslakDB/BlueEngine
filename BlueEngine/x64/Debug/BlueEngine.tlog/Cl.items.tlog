@@ -1,7 +1,10 @@
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\BlueEngine.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\BlueEngine.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Camera.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Camera.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Collision.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Collision.obj
+C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Components.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Components.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Model.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Model.obj
+C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Plane.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Plane.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Shaders.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Shaders.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Sphere.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Sphere.obj
+C:\SpillMotorArkitektur\BlueEngine\BlueEngine\Core\Systems.cpp;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\Systems.obj
 C:\SpillMotorArkitektur\BlueEngine\BlueEngine\glad.c;C:\SpillMotorArkitektur\BlueEngine\BlueEngine\x64\Debug\glad.obj

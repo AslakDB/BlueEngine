@@ -110,6 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)\BlueEngine\Dependencies\includes</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,20 +161,26 @@
     <ClCompile Include="BlueEngine.cpp" />
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Collision.cpp" />
+    <ClCompile Include="Core\Components.cpp" />
     <ClCompile Include="Core\Model.cpp" />
+    <ClCompile Include="Core\Plane.cpp" />
     <ClCompile Include="Core\Shaders.cpp" />
     <ClCompile Include="Core\Sphere.cpp" />
+    <ClCompile Include="Core\Systems.cpp" />
     <ClCompile Include="glad.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\AABB.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Collision.h" />
+    <ClInclude Include="Core\Components.h" />
     <ClInclude Include="Core\Model.h" />
+    <ClInclude Include="Core\Plane.h" />
     <ClInclude Include="Core\render.h" />
     <ClInclude Include="Core\Setup.h" />
     <ClInclude Include="Core\Shaders.h" />
     <ClInclude Include="Core\Sphere.h" />
+    <ClInclude Include="Core\Systems.h" />
     <ClInclude Include="Core\Vertex.h" />
   </ItemGroup>
   <ItemGroup>

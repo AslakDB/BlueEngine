@@ -27,15 +27,15 @@ unsigned int VBO, VAO, EBO;
 
     
     glm::vec3 PlayerPos = glm::vec3(0.f);
+    glm::vec3 Velocity = glm::vec3(0.f);
+    
     glm::vec3 PlayerScale = glm::vec3(1.f);
     glm::vec3 PlayerRotation = glm::vec3(0.f);
-    glm::vec3 Velocity = glm::vec3(0.f);
+   
     void Bind();
 
    
-    glm::vec3 GetPlayerPos(){return PlayerPos;}
-    glm::vec3 GetPlayerScale(){return PlayerScale;}
-    glm::vec3 GetPlayerRotation(){return PlayerRotation;}
+    
 
     void CalculateMatrix();
 

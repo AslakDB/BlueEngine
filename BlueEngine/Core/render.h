@@ -3,13 +3,13 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "Model.h"
-
+#include "plane.h"
 #include "Sphere.h"
 #include "Collision.h"
 
 Sphere sphere;
 Collision coll;
-
+Plane Plane;
 
 Camera camera;
 
@@ -32,8 +32,8 @@ bool inside;
          
         model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
         
-        model floorModel, ZWallP, ZWallN, XWallP, XWallN;
-        std::vector<model*> models = { &floorModel, &ZWallP, &ZWallN, &XWallP, &XWallN };
+        model floorPlane, ZWallP, ZWallN, XWallP, XWallN;
+        std::vector<model*> models = { &floorPlane, &ZWallP, &ZWallN, &XWallP, &XWallN };
         
         std::vector<model*> sphere_models;
         
@@ -47,6 +47,12 @@ bool inside;
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
         
+
+        Plane.CreateFloor(floorPlane);
+        Plane.CreateFloor(ZWallP);
+        Plane.CreateFloor(ZWallN);
+        Plane.CreateFloor(XWallP);
+        Plane.CreateFloor(XWallN);
         
         sphere.CreateSphere(SphereModel0);
       sphere.CreateSphere(SphereModel1);
@@ -55,7 +61,7 @@ bool inside;
         sphere.CreateSphere(SphereModel4);
 
 
-        floorModel.PlayerPos = glm::vec3(0.f,0.f,0.f);
+        floorPlane.PlayerPos = glm::vec3(0.f,0.f,0.f);
        
         ZWallN.PlayerPos= glm::vec3(0.f, 0, -4.5f);
         ZWallN.PlayerRotation = glm::vec3(90.f,0.f,0.f);
