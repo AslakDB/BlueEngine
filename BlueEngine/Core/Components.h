@@ -7,7 +7,7 @@
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include "Vertex.h"
-#include "Entity"
+#include "Entity.h"
 
 class Components
 {
