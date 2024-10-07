@@ -187,6 +187,7 @@
     <Compile Include="Shader\Shader.fs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Core\Entity" />
     <Content Include="Shader\Shader.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

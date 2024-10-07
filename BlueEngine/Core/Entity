@@ -1,0 +1,20 @@
+﻿#include <iostream>
+
+class Entity
+{
+public:
+    int ID  = 0;
+    Entity(int id) : ID(id) {}
+    
+    const Entity MAX_ENTITIES = 5000;
+};
+
+class entity_manager
+{
+    entity_manager() {
+        for (int i = 0; i < MAX_ENTITIES; i++)
+        {
+            entities[i] = Entity(i);
+        }
+    }
+};
