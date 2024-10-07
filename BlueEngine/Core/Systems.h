@@ -6,8 +6,6 @@ public:
    virtual void Update();
 };
 
-
-
 struct movementSystem : public Systems
 {
     position_component *position;
@@ -45,3 +43,12 @@ struct matrix_system : public Systems
     }
 };
 
+struct plane_system : public Systems
+{
+plane_component* Plane;
+
+/*void CreatePlane (model& plane_model)
+{
+
+}*/
+};

@@ -23,7 +23,7 @@ public:
 
 struct i_component_handler 
 {
-   };
+};
 
  template <typename T> 
 struct component_handler : i_component_handler
@@ -81,4 +81,19 @@ struct matrix_component : public Components
 struct attack_component : public Components
 {
     int damage = 0;
+};
+
+struct sphere_component : public Components
+{
+    float radius = 0.5f;
+};
+
+struct cube_component : public Components
+{
+    
+};
+
+struct plane_component : public Components
+{
+    
 };
