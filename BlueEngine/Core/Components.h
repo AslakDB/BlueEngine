@@ -3,10 +3,7 @@
 #include <string>
 #include <vcruntime_typeinfo.h>
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/vec2.hpp>
-#include <glm/vec3.hpp>
-#include "Vertex.h"
+#include "Model.h"
 #include "Entity.h"
 
 class Components
@@ -107,14 +104,15 @@ struct attack_component : public Components
 struct sphere_component : public Components
 {
     float radius = 0.5f;
+    model sphere_model;
 };
 
 struct cube_component : public Components
 {
-    
+    model cube_model;
 };
 
 struct plane_component : public Components
 {
-    
+    model plane_model;
 };

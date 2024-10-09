@@ -9,9 +9,34 @@ public:
     std::pmr::set<Entity> mEntities;
 };
 
-class SystemManager
+
+struct I_system_handler
 {
-    
+    virtual ~I_system_handler() = default;
+};
+
+template <typename T> 
+struct system_handler : public I_system_handler
+{
+    std::vector<T> Systems;
+    std::map<Entity,int> index;  
+};
+
+class SystemManager : public I_system_handler
+{
+public:
+    std::map<std::string, I_system_handler*> m_systems_map;
+    template <typename T>
+    void AddSystem()
+    {
+        if (m_systems_map.contains(typeid(T).name()) == false)
+        {
+            m_systems_map[typeid(T).name()] = new system_handler<T>();
+        }
+        system_handler<T> *handler = static_cast<system_handler<T>*>(m_systems_map[typeid(T).name()]);
+        handler->Systems.emplace_back();
+        handler->index[handler->Systems.size() - 1] = handler->Systems.size() - 1;
+    }
 };
 
 struct movementSystem : public Systems
@@ -56,8 +81,8 @@ struct plane_system : public Systems
 {
 plane_component* Plane;
 
-/*void CreatePlane (model& plane_model)
+void CreatePlane (model& plane_model)
 {
 
-}*/
+}
 };
