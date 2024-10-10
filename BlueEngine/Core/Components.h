@@ -21,7 +21,7 @@ struct i_component_handler
 struct component_handler : i_component_handler
 {
      std::vector<T> Components;
-     std::map<Entity,int> index;  
+     std::map<int,int> index;  
 };
 
 struct component_manager

@@ -6,12 +6,20 @@
 #include "plane.h"
 #include "Sphere.h"
 #include "Collision.h"
+//#include "Entity.h"
+#include "Systems.h"
+#include "Components.h"
+
 
 Sphere sphere;
 Collision coll;
 Plane Plane;
 
 Camera camera;
+
+entity_manager entityManager;
+component_manager componentManager;
+SystemManager systemManager;
 
 bool firstMouse = true;
 
@@ -26,6 +34,9 @@ void ProsessInput(GLFWwindow *window, float deltaTime, model& sphere);
 struct Render {
 bool inside;
     bool isMovingForward;
+
+    
+
     
     Render() = default;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
