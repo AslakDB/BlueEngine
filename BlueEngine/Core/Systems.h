@@ -48,7 +48,7 @@ public:
     }
 
     template <typename T>
-    void draw_meshes( component_manager& componentManager)
+    void draw_meshes(component_manager& componentManager)
     {
         std::string system_name = typeid(T).name();
         if (m_systems_map.find(system_name) == m_systems_map.end())
@@ -116,18 +116,62 @@ struct HealthSystem : public Systems
 
 struct matrix_system : public Systems
 {
-    matrix_component *matrix;
-    //position_component *position;
-    transform_component *transform;
-    void Update(unsigned int ShaderProgram, component_manager& componentManager) override
-    {
-        matrix->ModelMatrix = glm::mat4(1.f);
-        matrix->ModelMatrix = glm::translate(matrix->ModelMatrix, transform->PlayerPos);
-        matrix->ModelMatrix = glm::rotate(matrix->ModelMatrix, transform->Rotation.x, glm::vec3(1.f, 0.f, 0.f));
-        matrix->ModelMatrix = glm::rotate(matrix->ModelMatrix, transform->Rotation.y, glm::vec3(0.f, 1.f, 0.f));
-        matrix->ModelMatrix = glm::rotate(matrix->ModelMatrix, transform->Rotation.z, glm::vec3(0.f, 0.f, 1.f));
-        matrix->ModelMatrix = glm::scale(matrix->ModelMatrix, transform->Scale);
+   // glm::mat4 _modelMatrix = glm::mat4(1.f);
+    void Update(unsigned int ShaderProgram, component_manager& componentManager) override {
+        auto* matrix_handler = componentManager.get_component_handler<matrix_component>();
+        auto* transform_handler = componentManager.get_component_handler<transform_component>();
+
+        // Ensure both handlers are valid
+        if (!matrix_handler || !transform_handler) {
+            return;
+        }
+
+        // Assuming a one-to-one correspondence between matrix and transform components
+        auto& matrices = matrix_handler->Components;
+        auto& transforms = transform_handler->Components;
+
+        size_t min_size = std::min(matrices.size(), transforms.size());
+
+        for (size_t i = 0; i < min_size; ++i) {
+            auto& matrix = matrices[i];
+            auto& transform = transforms[i];
+
+            matrix.ModelMatrix = glm::mat4(1.f);
+            matrix.ModelMatrix = glm::translate(matrix.ModelMatrix, transform.PlayerPos);
+            matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.x, glm::vec3(1.f, 0.f, 0.f));
+            matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.y, glm::vec3(0.f, 1.f, 0.f));
+            matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.z, glm::vec3(0.f, 0.f, 1.f));
+            matrix.ModelMatrix = glm::scale(matrix.ModelMatrix, transform.Scale);
+        }
     }
+
+    /*void Update(unsigned int ShaderProgram, component_manager& componentManager) override {
+    component_handler<matrix_component>* matrices = componentManager.get_component_handler<matrix_component>();
+    component_handler<transform_component>* transforms = componentManager.get_component_handler<transform_component>();
+
+    // Ensure the components are of the same size and correspond to each other by entity ID
+    if (matrices->Components.size() != transforms->Components.size()) {
+        std::cerr << "Component size mismatch!" << std::endl;
+        return;
+    }
+
+    for (size_t i = 0; i < matrices->Components.size(); ++i) {
+        matrix_component& matrix = matrices->Components[i];
+        transform_component& transform = transforms->Components[i];
+
+        // Initialize ModelMatrix to identity matrix
+        matrix.ModelMatrix = glm::mat4(1.0f);
+        // Apply transformations
+        matrix.ModelMatrix = glm::translate(matrix.ModelMatrix, transform.PlayerPos);
+        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+        matrix.ModelMatrix = glm::scale(matrix.ModelMatrix, transform.Scale);
+    }
+}
+*/
+
+    
 };
 
 struct plane_system : public Systems
@@ -182,10 +226,7 @@ struct cube_system : public Systems
 
 struct test_system final : public Systems
 {
-    //std::shared_ptr<test_component> test = std::make_shared<test_component>(this);
-
-    
-    // test_component *test;
+   
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override
     {
         component_handler<test_component> *test = componentManager.get_component_handler<test_component>();

@@ -81,10 +81,7 @@ struct transform_component : public Components
     glm::vec3 PlayerPos = glm::vec3(0.f);
     glm::vec3 Scale = glm::vec3(0.f);
     glm::vec3 Rotation = glm::vec3(0.f);
-
-    
 };
-
 struct movement_component : public Components
 {
     glm::vec3 Velocity = glm::vec3(0.f);

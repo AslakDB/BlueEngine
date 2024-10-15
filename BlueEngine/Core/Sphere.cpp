@@ -111,9 +111,6 @@ void sphere_system:: Draw(component_manager componentManager)
 
     for (sphere_component element : sphere->Components)
     {
-        
-    
-    
     element.sphere_model.vertices.emplace_back(glm::vec3(0.f,0.f,1.f), glm::vec3(0.f), glm::vec3(0.6f));
     element.sphere_model.vertices.emplace_back(glm::vec3(1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
     element.sphere_model.vertices.emplace_back(glm::vec3(0.f,1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));

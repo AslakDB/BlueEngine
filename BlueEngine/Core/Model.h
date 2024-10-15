@@ -33,8 +33,6 @@ unsigned int VBO, VAO, EBO;
     glm::vec3 PlayerRotation = glm::vec3(0.f);
    
     void Bind();
-
-   
     
 
     void CalculateMatrix();
