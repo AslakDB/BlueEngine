@@ -6,7 +6,7 @@ class Systems
 {
 public:
     virtual ~Systems() = default;
-    virtual void Draw();
+    virtual void Draw( component_manager componentManager ) {};
    virtual void Update(unsigned int ShaderProgram, component_manager& componentManager) = 0;
    std::pmr::set<Entity> mEntities;
 };
@@ -47,7 +47,7 @@ public:
         handler->index[id] = handler->Systems.size() - 1;
     }
 
-    /*template <typename T>
+    template <typename T>
     void draw_meshes( component_manager& componentManager)
     {
         std::string system_name = typeid(T).name();
@@ -58,9 +58,9 @@ public:
         system_handler<T>* handler = static_cast<system_handler<T>*>(m_systems_map[system_name]);
         for (T& system : handler->Systems)
         {
-            system.Draw(); //unsure what to have here
+            system.Draw(componentManager); //unsure what to have here
         }
-    }*/
+    }
 
     
     template <typename T>
@@ -97,10 +97,19 @@ struct HealthSystem : public Systems
     attack_component *attack;
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override
     {  
-        for (int& i : health->health)
+        component_handler<health_component> *health = componentManager.get_component_handler<health_component>();
+        component_handler<attack_component> *attack = componentManager.get_component_handler<attack_component>();
+        /*for (health_component &element : health->Components)
         {
-            i -= attack->damage;
-        }
+            for (attack_component &element2 : attack->Components)
+            {
+                if (element2.Attack == true)
+                {
+                    element.Health -= 10;
+                    element2.Attack = false;
+                }
+            }
+        }*/
         
     }
 };
@@ -123,32 +132,44 @@ struct matrix_system : public Systems
 
 struct plane_system : public Systems
 {
-plane_component Plane;
+
 
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override
     {
-       Plane.plane_model.DrawMesh(ShaderProgram);
-        Plane.plane_model.CalculateMatrix();
+        component_handler<plane_component> *plane = componentManager.get_component_handler<plane_component>();
+        for (plane_component &element : plane->Components)
+        {
+            element.plane_model.CalculateMatrix();
+            element.plane_model.CalculateMatrix(); 
+        }
+       
     }
-void Draw () override
+   
+void Draw ( component_manager componentManager) override
 {
-    Plane.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    Plane.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    Plane.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    Plane.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    component_handler<plane_component> *plane = componentManager.get_component_handler<plane_component>();
 
-    Plane.plane_model.indices.emplace_back(0,1,3);
-    Plane.plane_model.indices.emplace_back(1,2,3);
-        
-    for (Triangle& index : Plane.plane_model.indices)
+    for (plane_component &element : plane->Components)
     {
-        glm::vec3 normal = glm::cross(Plane.plane_model.vertices[index.B].XYZ - Plane.plane_model.vertices[index.A].XYZ, Plane.plane_model.vertices[index.C].XYZ - Plane.plane_model.vertices[index.A].XYZ);
+   
+    element.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    element.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    element.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    element.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
 
-        Plane.plane_model.vertices[index.A].Normals += glm::normalize(normal);
-        Plane.plane_model.vertices[index.B].Normals += glm::normalize(normal);
-        Plane.plane_model.vertices[index.C].Normals += glm::normalize(normal);
+    element.plane_model.indices.emplace_back(0,1,3);
+    element.plane_model.indices.emplace_back(1,2,3);
+        
+    for (Triangle& index : element.plane_model.indices)
+    {
+        glm::vec3 normal = glm::cross(element.plane_model.vertices[index.B].XYZ - element.plane_model.vertices[index.A].XYZ, element.plane_model.vertices[index.C].XYZ - element.plane_model.vertices[index.A].XYZ);
+
+        element.plane_model.vertices[index.A].Normals += glm::normalize(normal);
+        element.plane_model.vertices[index.B].Normals += glm::normalize(normal);
+        element.plane_model.vertices[index.C].Normals += glm::normalize(normal);
     }
-    Plane.plane_model.Bind();
+    element.plane_model.Bind();
+    }
 }
 };
 

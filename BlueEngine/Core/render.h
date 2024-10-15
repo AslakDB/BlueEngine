@@ -42,9 +42,6 @@ bool inside;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
          
         model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
-
-;
-        
         
         Entity Sphere0 = entityManager.create_entity();
         if (Sphere0.ID == -1){std::cerr << "Failed to create entity." << std::endl;}
@@ -61,6 +58,7 @@ bool inside;
         componentManager.add_component<sphere_component>(Sphere0.ID);
         componentManager.add_component<transform_component>(Sphere0.ID);
         componentManager.add_component<matrix_component>(Sphere0.ID);
+
         
 
         auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
@@ -82,7 +80,7 @@ bool inside;
         glm::mat4 projection;
 
 
-      //  systemManager.draw_meshes<sphere_system>(Sphere0.ID);
+    systemManager.draw_meshes<sphere_system>(componentManager);
 
         Plane.CreateFloor(floorPlane);
         Plane.CreateFloor(ZWallP);
