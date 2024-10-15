@@ -61,8 +61,13 @@ struct component_manager
                 --value;
             }
         }
+        
     }
-    
+    template <typename T>
+    component_handler<T>* get_component_handler()
+    {
+        return static_cast<component_handler<T>*>(component_map[typeid(T).name()]);
+    }
 };
 
 
@@ -101,11 +106,6 @@ struct attack_component : public Components
     int damage = 0;
 };
 
-struct sphere_component : public Components
-{
-    float radius = 0.5f;
-    model sphere_model;
-};
 
 struct cube_component : public Components
 {
@@ -115,4 +115,9 @@ struct cube_component : public Components
 struct plane_component : public Components
 {
     model plane_model;
+};
+
+struct test_component : public Components
+{
+    std::string TestString;
 };

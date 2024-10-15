@@ -6,7 +6,7 @@
 #include "plane.h"
 #include "Sphere.h"
 #include "Collision.h"
-//#include "Entity.h"
+#include "Entity.h"
 #include "Systems.h"
 #include "Components.h"
 
@@ -42,6 +42,29 @@ bool inside;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
          
         model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
+
+;
+        
+        
+        Entity Sphere0 = entityManager.create_entity();
+        if (Sphere0.ID == -1){std::cerr << "Failed to create entity." << std::endl;}
+        Entity TestEntity = entityManager.create_entity();
+        if (TestEntity.ID == -1){std::cerr << "Failed to create test entity." << std::endl;}
+
+        systemManager.AddSystem<test_system>(TestEntity.ID);
+        
+        systemManager.AddSystem<sphere_system>(Sphere0.ID);
+        systemManager.AddSystem<matrix_component>(Sphere0.ID);
+        
+       componentManager.add_component<test_component>(TestEntity.ID);
+        
+        componentManager.add_component<sphere_component>(Sphere0.ID);
+        componentManager.add_component<transform_component>(Sphere0.ID);
+        componentManager.add_component<matrix_component>(Sphere0.ID);
+        
+
+        auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
+        sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;
         
         model floorPlane, ZWallP, ZWallN, XWallP, XWallN;
         std::vector<model*> models = { &floorPlane, &ZWallP, &ZWallN, &XWallP, &XWallN };
@@ -57,7 +80,9 @@ bool inside;
 
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
-        
+
+
+      //  systemManager.draw_meshes<sphere_system>(Sphere0.ID);
 
         Plane.CreateFloor(floorPlane);
         Plane.CreateFloor(ZWallP);
@@ -70,6 +95,8 @@ bool inside;
       sphere.CreateSphere(SphereModel2);
       sphere.CreateSphere(SphereModel3);
         sphere.CreateSphere(SphereModel4);
+
+        
 
 
         floorPlane.PlayerPos = glm::vec3(0.f,0.f,0.f);
@@ -98,6 +125,7 @@ bool inside;
         
         while (!glfwWindowShouldClose(window))
             {
+          
 
             coll.SphereSphereCollision(sphere_models);
            coll.SphereBoxCollision(sphere_models,models);
@@ -115,6 +143,10 @@ bool inside;
             ProsessInput(window, deltaTime, SphereModel0);
             
 
+            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
+            systemManager.UpdateSystems<matrix_system>(shaderProgram, componentManager);
+            systemManager.UpdateSystems<test_system>(shaderProgram, componentManager);
+            
             projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
             camera.tick(shaderProgram);
@@ -131,7 +163,7 @@ bool inside;
 
             glLineWidth(3);
 
-            
+          
             for (model* element : sphere_models)
             {
                 element->CalculateMatrix();

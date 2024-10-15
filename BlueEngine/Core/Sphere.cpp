@@ -2,8 +2,6 @@
 
 void Sphere::SubDivide(int A, int B, int C, int NumOfDiv, model& SphereModel)
 {
-    
-    
         if(NumOfDiv > 0)
         {
             glm::vec3 v1 =glm::normalize(SphereModel.vertices[A].XYZ + SphereModel.vertices[B].XYZ);
@@ -69,4 +67,70 @@ void Sphere::CreateSphere(model& SphereModel)
 void Sphere::Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
 {
     SphereModel.PlayerPos = SphereModel.PlayerPos + (RandSpeed * deltatime);
+}
+
+void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager)
+{
+   model sphereModel;
+    sphereModel.DrawMesh(shaderProgram);// Cant to this, it sometimes destroys with everything for some reason
+    sphereModel.Bind();
+}
+
+void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model& SphereModel)
+{
+    
+    if(NumOfDiv > 0)
+    {
+        glm::vec3 v1 =glm::normalize(SphereModel.vertices[A].XYZ + SphereModel.vertices[B].XYZ);
+        glm::vec3 v2 =glm::normalize(SphereModel.vertices[A].XYZ+SphereModel.vertices[C].XYZ);
+        glm::vec3 v3 =glm::normalize(SphereModel.vertices[C].XYZ+SphereModel.vertices[B].XYZ );
+        
+
+        int index1 =SphereModel.vertices.size(); 
+        SphereModel.vertices.emplace_back(v1,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        int index2 = SphereModel.vertices.size();
+        SphereModel.vertices.emplace_back(v2,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        int index3 = SphereModel.vertices.size();
+        SphereModel.vertices.emplace_back(v3,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        
+        SubDivide(A,index1,index2, NumOfDiv -1, SphereModel);
+        SubDivide(C,index2,index3, NumOfDiv -1,SphereModel);
+        SubDivide(B,index3,index1, NumOfDiv -1,SphereModel);
+        SubDivide(index3,index2,index1, NumOfDiv -1,SphereModel);
+    }
+    else
+    {
+        SphereModel.indices.emplace_back(A,B,C);
+    }
+}
+
+void sphere_system:: Draw() 
+{
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(0.f,0.f,1.f), glm::vec3(0.f), glm::vec3(0.6f));
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(0.f,1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(-1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(0.f,-1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    sphere.sphere_model.vertices.emplace_back(glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f), glm::vec3(0.6f));
+
+    SubDivide(0,1,2,4, sphere.sphere_model);
+    SubDivide(0,2,3,4, sphere.sphere_model);
+    SubDivide(0,3,4,4, sphere.sphere_model);
+    SubDivide(0,4,1,4, sphere.sphere_model);
+    SubDivide(5,2,1,4, sphere.sphere_model);
+    SubDivide(5,3,2,4, sphere.sphere_model);
+    SubDivide(5,4,3,4, sphere.sphere_model);
+    SubDivide(5,1,4,4, sphere.sphere_model);
+    for (Triangle& index : sphere.sphere_model.indices)
+    {
+        glm::vec3 normal = glm::cross(sphere.sphere_model.vertices[index.B].XYZ - sphere.sphere_model.vertices[index.A].XYZ, sphere.sphere_model.vertices[index.C].XYZ - sphere.sphere_model.vertices[index.A].XYZ);
+
+        sphere.sphere_model.vertices[index.A].Normals += glm::normalize(normal);
+        sphere.sphere_model.vertices[index.B].Normals += glm::normalize(normal);
+        sphere.sphere_model.vertices[index.C].Normals += glm::normalize(normal);}
+       
+    sphere.sphere_model.Bind();
+       
+    sphere.sphere_model.PlayerScale = glm::vec3(0.5f);
+
 }
