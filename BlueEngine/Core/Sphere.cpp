@@ -71,9 +71,27 @@ void Sphere::Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
 
 void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager)
 {
-   model sphereModel;
-    sphereModel.DrawMesh(shaderProgram);// Cant to this, it sometimes destroys with everything for some reason
-    sphereModel.Bind();
+    component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
+    component_handler<matrix_component>* matrixHandler = componentManager.get_component_handler<matrix_component>();
+    if (!modelHandler || !matrixHandler) {
+        return;
+    }
+
+    auto& models = modelHandler->Components;
+    auto& matrices = matrixHandler->Components;
+    glUseProgram(shaderProgram);
+
+    for (size_t i = 0; i < models.size(); ++i) {
+        auto& model = models[i];
+        auto& matrix = matrices[i];
+
+        int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrix.ModelMatrix));
+        glBindVertexArray(model.VAO);
+
+        glDrawElements(GL_TRIANGLES, model.indices.size() * 3, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+    }
 }
 
 void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model& SphereModel)
@@ -108,6 +126,8 @@ void sphere_system:: Draw(component_manager componentManager)
 {
 
     component_handler<sphere_component> *sphere = componentManager.get_component_handler<sphere_component>();
+       component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
+
 
     for (sphere_component element : sphere->Components)
     {

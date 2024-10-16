@@ -18,6 +18,7 @@ public:
 struct sphere_component : public Components
 {
     float radius = 0.5f;
+    unsigned int VAO,VBO, EBO;
     model sphere_model;
 };
 struct sphere_system : public Systems

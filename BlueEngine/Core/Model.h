@@ -34,7 +34,6 @@ unsigned int VBO, VAO, EBO;
    
     void Bind();
     
-
     void CalculateMatrix();
 
      void CalculateBoundingBox();

@@ -9,6 +9,8 @@ public:
     virtual void Draw( component_manager componentManager ) {};
    virtual void Update(unsigned int ShaderProgram, component_manager& componentManager) = 0;
    std::pmr::set<Entity> mEntities;
+
+
 };
 
 
@@ -144,34 +146,41 @@ struct matrix_system : public Systems
             matrix.ModelMatrix = glm::scale(matrix.ModelMatrix, transform.Scale);
         }
     }
-
-    /*void Update(unsigned int ShaderProgram, component_manager& componentManager) override {
-    component_handler<matrix_component>* matrices = componentManager.get_component_handler<matrix_component>();
-    component_handler<transform_component>* transforms = componentManager.get_component_handler<transform_component>();
-
-    // Ensure the components are of the same size and correspond to each other by entity ID
-    if (matrices->Components.size() != transforms->Components.size()) {
-        std::cerr << "Component size mismatch!" << std::endl;
-        return;
-    }
-
-    for (size_t i = 0; i < matrices->Components.size(); ++i) {
-        matrix_component& matrix = matrices->Components[i];
-        transform_component& transform = transforms->Components[i];
-
-        // Initialize ModelMatrix to identity matrix
-        matrix.ModelMatrix = glm::mat4(1.0f);
-        // Apply transformations
-        matrix.ModelMatrix = glm::translate(matrix.ModelMatrix, transform.PlayerPos);
-        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
-        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
-        matrix.ModelMatrix = glm::rotate(matrix.ModelMatrix, transform.Rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
-        matrix.ModelMatrix = glm::scale(matrix.ModelMatrix, transform.Scale);
-    }
-}
-*/
-
     
+};
+
+
+struct model_system : public Systems {
+   
+    void Update(unsigned int ShaderProgram, component_manager& componentManager) override {
+        component_handler<model_component> *model_handler = componentManager.get_component_handler<model_component>();
+        component_handler<matrix_component> *matrix_handler = componentManager.get_component_handler<matrix_component>();
+
+        if (!model_handler || !matrix_handler) {
+            return;
+        }
+
+        auto& models = model_handler->Components;
+        auto& matrices = matrix_handler->Components;
+
+        glUseProgram(ShaderProgram);
+
+        // Ensure the sizes match or handle mismatches appropriately
+        size_t min_size = std::min(models.size(), matrices.size());
+
+        for (size_t i = 0; i < min_size; ++i) {
+            const auto& model = models[i];
+            const auto& matrix = matrices[i];
+
+            int modelLoc = glGetUniformLocation(ShaderProgram, "model");
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrix.ModelMatrix));
+            glBindVertexArray(model.VAO);
+
+            glDrawElements(GL_TRIANGLES, model.indices.size() * 3, GL_UNSIGNED_INT, 0);
+            
+            glBindVertexArray(0);
+        }
+    }
 };
 
 struct plane_system : public Systems

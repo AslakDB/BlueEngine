@@ -49,18 +49,18 @@ bool inside;
         if (TestEntity.ID == -1){std::cerr << "Failed to create test entity." << std::endl;}
 
         systemManager.AddSystem<test_system>(TestEntity.ID);
-        
+        systemManager.AddSystem<model_system>(Sphere0.ID);
         systemManager.AddSystem<sphere_system>(Sphere0.ID);
-        systemManager.AddSystem<matrix_component>(Sphere0.ID);
-        
-       componentManager.add_component<test_component>(TestEntity.ID);
-        
+        systemManager.AddSystem<matrix_system>(Sphere0.ID);
+
+        // Add components
+        componentManager.add_component<test_component>(TestEntity.ID);
+        componentManager.add_component<model_component>(Sphere0.ID);
         componentManager.add_component<sphere_component>(Sphere0.ID);
         componentManager.add_component<transform_component>(Sphere0.ID);
         componentManager.add_component<matrix_component>(Sphere0.ID);
 
-        
-
+        // Setup sphere model radius
         auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
         sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;
         
@@ -139,11 +139,12 @@ bool inside;
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
             ProsessInput(window, deltaTime, SphereModel0);
-            
 
-            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
             systemManager.UpdateSystems<matrix_system>(shaderProgram, componentManager);
-            systemManager.UpdateSystems<test_system>(shaderProgram, componentManager);
+            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
+           
+           // systemManager.UpdateSystems<test_system>(shaderProgram, componentManager);
+            //systemManager.UpdateSystems<model_system>(shaderProgram,componentManager);
             
             projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 

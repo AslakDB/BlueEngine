@@ -118,3 +118,13 @@ struct test_component : public Components
 {
     std::string TestString;
 };
+
+struct model_component : public Components
+{
+    unsigned int VBO, VAO, EBO;
+    std::vector<Vertex> vertices;
+    std::vector<Triangle> indices;
+    std::vector<glm::vec3> corners;
+    
+    int modelLoc = 0;
+};
