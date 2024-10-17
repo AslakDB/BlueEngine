@@ -48,12 +48,25 @@ bool inside;
         Entity TestEntity = entityManager.create_entity();
         if (TestEntity.ID == -1){std::cerr << "Failed to create test entity." << std::endl;}
 
-        systemManager.AddSystem<test_system>(TestEntity.ID);
-        systemManager.AddSystem<model_system>(Sphere0.ID);
+        Entity Plane0 = entityManager.create_entity();
+        if (Plane0.ID == -1){std::cerr << "Failed to create plane entity." << std::endl;}
+
+       
+        systemManager.AddSystem<matrix_system>(Plane0.ID);
+        systemManager.AddSystem<plane_system>(Plane0.ID);
+
+       // systemManager.AddSystem<test_system>(TestEntity.ID);
+       
         systemManager.AddSystem<sphere_system>(Sphere0.ID);
         systemManager.AddSystem<matrix_system>(Sphere0.ID);
+        
 
         // Add components
+        componentManager.add_component<plane_component>(Plane0.ID);
+        componentManager.add_component<model_component>(Plane0.ID);
+        componentManager.add_component<transform_component>(Plane0.ID);
+        componentManager.add_component<matrix_component>(Plane0.ID);
+        
         componentManager.add_component<test_component>(TestEntity.ID);
         componentManager.add_component<model_component>(Sphere0.ID);
         componentManager.add_component<sphere_component>(Sphere0.ID);
@@ -61,8 +74,8 @@ bool inside;
         componentManager.add_component<matrix_component>(Sphere0.ID);
 
         // Setup sphere model radius
-        auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
-        sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;
+        /*auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
+        sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;*/
         
         model floorPlane, ZWallP, ZWallN, XWallP, XWallN;
         std::vector<model*> models = { &floorPlane, &ZWallP, &ZWallN, &XWallP, &XWallN };
@@ -79,20 +92,21 @@ bool inside;
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
 
+        systemManager.draw_meshes<plane_system>(componentManager);
+        systemManager.draw_meshes<sphere_system>(componentManager);
+        
 
-    systemManager.draw_meshes<sphere_system>(componentManager);
-
-        Plane.CreateFloor(floorPlane);
+        /*Plane.CreateFloor(floorPlane);
         Plane.CreateFloor(ZWallP);
         Plane.CreateFloor(ZWallN);
         Plane.CreateFloor(XWallP);
-        Plane.CreateFloor(XWallN);
+        Plane.CreateFloor(XWallN);*/
         
-        sphere.CreateSphere(SphereModel0);
+        /*sphere.CreateSphere(SphereModel0);
       sphere.CreateSphere(SphereModel1);
       sphere.CreateSphere(SphereModel2);
       sphere.CreateSphere(SphereModel3);
-        sphere.CreateSphere(SphereModel4);
+        sphere.CreateSphere(SphereModel4);*/
 
         
 
@@ -125,8 +139,8 @@ bool inside;
             {
           
 
-            coll.SphereSphereCollision(sphere_models);
-           coll.SphereBoxCollision(sphere_models,models);
+                coll.SphereSphereCollision(sphere_models);
+                coll.SphereBoxCollision(sphere_models,models);
 
             
            sphere.Move(SphereModel0, deltaTime, SphereModel0.Velocity);
@@ -140,10 +154,9 @@ bool inside;
             lastFrame = currentFrame;
             ProsessInput(window, deltaTime, SphereModel0);
 
-            systemManager.UpdateSystems<matrix_system>(shaderProgram, componentManager);
-            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
+            
            
-           // systemManager.UpdateSystems<test_system>(shaderProgram, componentManager);
+            
             //systemManager.UpdateSystems<model_system>(shaderProgram,componentManager);
             
             projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
@@ -161,7 +174,13 @@ bool inside;
             glUniform3fv(LightLoc, 1, glm::value_ptr(glm::vec3(0,10,0)));
 
             glLineWidth(3);
-
+            
+            systemManager.UpdateSystems<plane_system>(shaderProgram, componentManager);
+            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
+            
+            systemManager.UpdateSystems<matrix_system>(shaderProgram, componentManager);
+          
+            
           
             for (model* element : sphere_models)
             {

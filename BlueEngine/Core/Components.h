@@ -79,7 +79,7 @@ struct component_manager
 struct transform_component : public Components
 {
     glm::vec3 PlayerPos = glm::vec3(0.f);
-    glm::vec3 Scale = glm::vec3(0.f);
+    glm::vec3 Scale = glm::vec3(1.f);
     glm::vec3 Rotation = glm::vec3(0.f);
 };
 struct movement_component : public Components
@@ -125,6 +125,15 @@ struct model_component : public Components
     std::vector<Vertex> vertices;
     std::vector<Triangle> indices;
     std::vector<glm::vec3> corners;
+
+    model_component() :  VBO(0),VAO(0), EBO(0) { }
+
+    ~model_component()
+    {
+        if (VAO) glDeleteVertexArrays(1, &VAO);
+        if (VBO) glDeleteBuffers(1, &VBO);
+        if (EBO) glDeleteBuffers(1, &EBO);
+    }
     
     int modelLoc = 0;
 };

@@ -71,6 +71,10 @@ void Sphere::Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
 
 void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager)
 {
+
+    component_handler< sphere_component> *sphere = componentManager.get_component_handler<sphere_component>();
+
+   
     component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
     component_handler<matrix_component>* matrixHandler = componentManager.get_component_handler<matrix_component>();
     if (!modelHandler || !matrixHandler) {
@@ -94,7 +98,7 @@ void sphere_system::Update(unsigned int shaderProgram, component_manager& compon
     }
 }
 
-void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model& SphereModel)
+void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model_component& SphereModel)
 {
     
     if(NumOfDiv > 0)
@@ -122,39 +126,68 @@ void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model& SphereMo
     }
 }
 
-void sphere_system:: Draw(component_manager componentManager) 
+void sphere_system:: Draw(component_manager& componentManager) 
 {
+   component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
 
-    component_handler<sphere_component> *sphere = componentManager.get_component_handler<sphere_component>();
-       component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
+    for (model_component &element : modelHandler->Components) {
+        // Clear vertices and indices for the current model
+        element.vertices.clear();
+        element.indices.clear();
 
+        // Set up vertices
+        element.vertices.emplace_back(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.6f));
+        element.vertices.emplace_back(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+        element.vertices.emplace_back(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+        element.vertices.emplace_back(glm::vec3(-1.f, 0.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+        element.vertices.emplace_back(glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+        element.vertices.emplace_back(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f), glm::vec3(0.6f));
 
-    for (sphere_component element : sphere->Components)
-    {
-    element.sphere_model.vertices.emplace_back(glm::vec3(0.f,0.f,1.f), glm::vec3(0.f), glm::vec3(0.6f));
-    element.sphere_model.vertices.emplace_back(glm::vec3(1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    element.sphere_model.vertices.emplace_back(glm::vec3(0.f,1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    element.sphere_model.vertices.emplace_back(glm::vec3(-1.f,0.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    element.sphere_model.vertices.emplace_back(glm::vec3(0.f,-1.f,0.f), glm::vec3(0.f), glm::vec3(0.6f));
-    element.sphere_model.vertices.emplace_back(glm::vec3(0.f,0.f,-1.f), glm::vec3(0.f), glm::vec3(0.6f));
+        // Subdivide the sphere
+        int NumOfDiv = 4;
+        SubDivide(0, 1, 2, NumOfDiv, element);
+        SubDivide(0, 2, 3, NumOfDiv, element);
+        SubDivide(0, 3, 4, NumOfDiv, element);
+        SubDivide(0, 4, 1, NumOfDiv, element);
+        SubDivide(5, 2, 1, NumOfDiv, element);
+        SubDivide(5, 3, 2, NumOfDiv, element);
+        SubDivide(5, 4, 3, NumOfDiv, element);
+        SubDivide(5, 1, 4, NumOfDiv, element);
 
-    SubDivide(0,1,2,4, element.sphere_model);
-    SubDivide(0,2,3,4, element.sphere_model);
-    SubDivide(0,3,4,4, element.sphere_model);
-    SubDivide(0,4,1,4, element.sphere_model);
-    SubDivide(5,2,1,4, element.sphere_model);
-    SubDivide(5,3,2,4, element.sphere_model);
-    SubDivide(5,4,3,4, element.sphere_model);
-    SubDivide(5,1,4,4, element.sphere_model);
-    for (Triangle& index : element.sphere_model.indices)
-    {
-        glm::vec3 normal = glm::cross(element.sphere_model.vertices[index.B].XYZ - element.sphere_model.vertices[index.A].XYZ, element.sphere_model.vertices[index.C].XYZ - element.sphere_model.vertices[index.A].XYZ);
+        // Calculate normals
+        for (Triangle& index : element.indices) {
+            glm::vec3 normal = glm::cross(
+                element.vertices[index.B].XYZ - element.vertices[index.A].XYZ,element.vertices[index.C].XYZ - element.vertices[index.A].XYZ);
+                element.vertices[index.A].Normals += glm::normalize(normal);
+                element.vertices[index.B].Normals += glm::normalize(normal);
+                element.vertices[index.C].Normals += glm::normalize(normal);
+        }
 
-       element.sphere_model.vertices[index.A].Normals += glm::normalize(normal);
-       element.sphere_model.vertices[index.B].Normals += glm::normalize(normal);
-       element.sphere_model.vertices[index.C].Normals += glm::normalize(normal);}
-       
-    element.sphere_model.Bind();
-    element.sphere_model.PlayerScale = glm::vec3(0.5f);
+        // Create buffers only for the current model
+        glGenVertexArrays(1, &element.VAO);
+        glGenBuffers(1, &element.VBO);
+        glGenBuffers(1, &element.EBO);
+
+        glBindVertexArray(element.VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, element.VBO);
+        glBufferData(GL_ARRAY_BUFFER, element.vertices.size() * sizeof(Vertex), element.vertices.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element.EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.indices.size() *sizeof(Triangle), element.indices.data(), GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+    }
+  
 }
-}
+

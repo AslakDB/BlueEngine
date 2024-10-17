@@ -6,7 +6,7 @@ class Systems
 {
 public:
     virtual ~Systems() = default;
-    virtual void Draw( component_manager componentManager ) {};
+    virtual void Draw( component_manager& componentManager ) {};
    virtual void Update(unsigned int ShaderProgram, component_manager& componentManager) = 0;
    std::pmr::set<Entity> mEntities;
 
@@ -150,9 +150,16 @@ struct matrix_system : public Systems
 };
 
 
-struct model_system : public Systems {
-   
-    void Update(unsigned int ShaderProgram, component_manager& componentManager) override {
+
+
+  
+    
+
+
+struct plane_system : public Systems
+{
+    void Update(unsigned int ShaderProgram, component_manager& componentManager) override
+    {
         component_handler<model_component> *model_handler = componentManager.get_component_handler<model_component>();
         component_handler<matrix_component> *matrix_handler = componentManager.get_component_handler<matrix_component>();
 
@@ -181,47 +188,68 @@ struct model_system : public Systems {
             glBindVertexArray(0);
         }
     }
-};
+    
 
-struct plane_system : public Systems
+   
+void Draw ( component_manager& componentManager) override
 {
 
-
-    void Update(unsigned int ShaderProgram, component_manager& componentManager) override
-    {
-        component_handler<plane_component> *plane = componentManager.get_component_handler<plane_component>();
-        for (plane_component &element : plane->Components)
-        {
-            element.plane_model.CalculateMatrix();
-            element.plane_model.CalculateMatrix(); 
-        }
-       
-    }
-   
-void Draw ( component_manager componentManager) override
-{
-    component_handler<plane_component> *plane = componentManager.get_component_handler<plane_component>();
-
-    for (plane_component &element : plane->Components)
-    {
-   
-    element.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    element.plane_model.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    element.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-    element.plane_model.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-
-    element.plane_model.indices.emplace_back(0,1,3);
-    element.plane_model.indices.emplace_back(1,2,3);
+        std::cout<<"Drawing Plane"<<std::endl;
         
-    for (Triangle& index : element.plane_model.indices)
-    {
-        glm::vec3 normal = glm::cross(element.plane_model.vertices[index.B].XYZ - element.plane_model.vertices[index.A].XYZ, element.plane_model.vertices[index.C].XYZ - element.plane_model.vertices[index.A].XYZ);
+        component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
 
-        element.plane_model.vertices[index.A].Normals += glm::normalize(normal);
-        element.plane_model.vertices[index.B].Normals += glm::normalize(normal);
-        element.plane_model.vertices[index.C].Normals += glm::normalize(normal);
+        if (!modelHandler) {
+            std::cerr << "Invalid component handler!" << std::endl;
+            return;
+        }
+        
+    for (auto &element : modelHandler->Components)
+    {
+        element.vertices.clear();
+        element.indices.clear();
+        
+        element.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        element.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        element.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        element.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+
+        
+        element.indices.emplace_back(0,1,3);
+        element.indices.emplace_back(1,2,3);
+        
+    for (Triangle& index : element.indices)
+    {
+        glm::vec3 normal = glm::cross(element.vertices[index.B].XYZ - element.vertices[index.A].XYZ, element.vertices[index.C].XYZ - element.vertices[index.A].XYZ);
+
+        element.vertices[index.A].Normals += glm::normalize(normal);
+        element.vertices[index.B].Normals += glm::normalize(normal);
+        element.vertices[index.C].Normals += glm::normalize(normal);
     }
-    element.plane_model.Bind();
+
+        
+        glGenVertexArrays(1, &element.VAO);
+        glGenBuffers(1, &element.VBO);
+        glGenBuffers(1, &element.EBO);
+
+        glBindVertexArray(element.VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, element.VBO);
+        glBufferData(GL_ARRAY_BUFFER, element.vertices.size() * sizeof(Vertex), element.vertices.data(), GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element.EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.indices.size() * sizeof(Triangle), element.indices.data(), GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 }
 };
@@ -243,7 +271,12 @@ struct test_system final : public Systems
         {
             element.TestString = "Hello World";
             std::cout<<element.TestString<<std::endl;
+            
         }
+    }
+    void TestVoid()
+    {
+        std::cout<<"Hello void"<<std::endl;
     }
     
 };

@@ -17,14 +17,12 @@ public:
 
 struct sphere_component : public Components
 {
-    float radius = 0.5f;
-    unsigned int VAO,VBO, EBO;
-    model sphere_model;
+    float radius = 0.25f;
 };
 struct sphere_system : public Systems
 {
     sphere_component sphere;
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override;
-   void SubDivide(int A, int B, int C, int NumOfDiv, model& SphereModel);
-    void Draw(component_manager componentManager)override; 
+   void SubDivide(int A, int B, int C, int NumOfDiv, model_component& SphereModel);
+    void Draw(component_manager& componentManager)override; 
   };
