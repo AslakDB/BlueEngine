@@ -70,7 +70,7 @@ void Sphere::Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
 }
 
 
-void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager)
+void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager, float deltatime)
 {
     
    

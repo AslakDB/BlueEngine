@@ -1,12 +1,13 @@
 ﻿#pragma once
 #include "Model.h"
+#include "Components.h"
 
 class Collision
 {
 public:
     /// collisjon mellom alle spheres i prosjektet
     /// @param sphere_models 
-    void SphereSphereCollision(std::vector<model*> sphere_models);
+    bool SphereSphereCollision(glm::vec3 playerPos, std::vector<glm::vec3> otherPos);
 
     /// collision sjekk mellom Sphere og AABB
     /// @param sphere_models 

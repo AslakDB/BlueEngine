@@ -1,21 +1,21 @@
 ﻿#include "Collision.h"
 
-void Collision::SphereSphereCollision(std::vector<model*> sphere_models)
+bool Collision::SphereSphereCollision(glm::vec3 playerPos, std::vector<glm::vec3> otherPos)
 { float radius = 0.5f;
 
-    for (int i = 0; i < sphere_models.size() - 1; i++)
+
+    for (auto element : otherPos)
     {
-        for (int j = i + 1; j < sphere_models.size(); j++)
-        {
+        
               
-            glm::vec3 distanceVector = sphere_models[i]->PlayerPos - sphere_models[j]->PlayerPos;
+            glm::vec3 distanceVector = playerPos - element;
             float distanceSquared = glm::dot(distanceVector, distanceVector);
             float radiusSum = 2.0f * radius;
             float radiusSumSquared = radiusSum * radiusSum;
 
             if (distanceSquared < radiusSumSquared)
             {
-                glm::vec3 collisionNormal = glm::normalize(distanceVector);
+                /*glm::vec3 collisionNormal = glm::normalize(distanceVector);
 
                 glm::vec3 relativeVelocity = sphere_models[i]->Velocity - sphere_models[j]->Velocity;
                 float velocityAlongNormal = glm::dot(relativeVelocity, collisionNormal);
@@ -33,12 +33,14 @@ void Collision::SphereSphereCollision(std::vector<model*> sphere_models)
                 glm::vec3 separation = collisionNormal * (overlap / 2.0f);
                 sphere_models[i]->PlayerPos += separation;
                 sphere_models[j]->PlayerPos -= separation;
+                */
 
                 std::cout << "BallCollision" << '\n';
+                return true;
             }
         }
     }
-}
+
 
 void Collision::SphereBoxCollision(const std::vector<model*>& sphere_models, const std::vector<model*>& other_models)
 {

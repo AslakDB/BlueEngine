@@ -97,7 +97,7 @@ struct movement_component : public Components
 
 struct health_component : public Components
 {
-    std::vector<int> health;
+    int health;
 };
 
 struct matrix_component : public Components
@@ -180,4 +180,5 @@ struct mesh_component : public Components
 struct model_component : public Components
 {
     std::string MeshName  = "Plane";
+    glm::vec3 colour = glm::vec3(1.f);
 };

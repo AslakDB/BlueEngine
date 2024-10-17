@@ -40,6 +40,7 @@ public:
 		EntityVector.push_back(entity);
 		ActiveEntities.erase(std::remove(ActiveEntities.begin(), ActiveEntities.end(), entity), ActiveEntities.end());
 	}
+	
 
 private:
 	std::vector<Entity> EntityVector;
