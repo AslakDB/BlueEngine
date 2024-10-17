@@ -69,36 +69,14 @@ void Sphere::Move(model& SphereModel, float deltatime, glm::vec3 RandSpeed)
     SphereModel.PlayerPos = SphereModel.PlayerPos + (RandSpeed * deltatime);
 }
 
+
 void sphere_system::Update(unsigned int shaderProgram, component_manager& componentManager)
 {
-
-    component_handler< sphere_component> *sphere = componentManager.get_component_handler<sphere_component>();
-
+    
    
-    component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
-    component_handler<matrix_component>* matrixHandler = componentManager.get_component_handler<matrix_component>();
-    if (!modelHandler || !matrixHandler) {
-        return;
-    }
-
-    auto& models = modelHandler->Components;
-    auto& matrices = matrixHandler->Components;
-    glUseProgram(shaderProgram);
-
-    for (size_t i = 0; i < models.size(); ++i) {
-        auto& model = models[i];
-        auto& matrix = matrices[i];
-
-        int modelLoc = glGetUniformLocation(shaderProgram, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrix.ModelMatrix));
-        glBindVertexArray(model.VAO);
-
-        glDrawElements(GL_TRIANGLES, model.indices.size() * 3, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-    }
 }
 
-void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model_component& SphereModel)
+void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, mesh_component& SphereModel)
 {
     
     if(NumOfDiv > 0)
@@ -128,12 +106,12 @@ void sphere_system::SubDivide(int A, int B, int C, int NumOfDiv, model_component
 
 void sphere_system:: Draw(component_manager& componentManager) 
 {
-   component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
+   component_handler<mesh_component>* modelHandler = componentManager.get_component_handler<mesh_component>();
 
-    for (model_component &element : modelHandler->Components) {
+    for (mesh_component &element : modelHandler->Components) {
         // Clear vertices and indices for the current model
-        element.vertices.clear();
-        element.indices.clear();
+        /*element.vertices.clear();
+        element.indices.clear();*/
 
         // Set up vertices
         element.vertices.emplace_back(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.6f));
@@ -163,29 +141,34 @@ void sphere_system:: Draw(component_manager& componentManager)
                 element.vertices[index.C].Normals += glm::normalize(normal);
         }
 
-        // Create buffers only for the current model
+      
         glGenVertexArrays(1, &element.VAO);
-        glGenBuffers(1, &element.VBO);
-        glGenBuffers(1, &element.EBO);
-
         glBindVertexArray(element.VAO);
 
+        // Generate and bind the Vertex Buffer Object (VBO)
+        glGenBuffers(1, &element.VBO);
         glBindBuffer(GL_ARRAY_BUFFER, element.VBO);
         glBufferData(GL_ARRAY_BUFFER, element.vertices.size() * sizeof(Vertex), element.vertices.data(), GL_STATIC_DRAW);
 
+        // Generate and bind the Element Buffer Object (EBO)
+        glGenBuffers(1, &element.EBO);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element.EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.indices.size() *sizeof(Triangle), element.indices.data(), GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.indices.size() * sizeof(Triangle), element.indices.data(), GL_STATIC_DRAW);
 
+        // Set the vertex attribute pointers
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
         glEnableVertexAttribArray(0);
-        
+
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
 
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
+        // Unbind the VBO (optional)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // Unbind the VAO (optional)
         glBindVertexArray(0);
     }
   

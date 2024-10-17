@@ -1,7 +1,94 @@
 ﻿#pragma once
 #include <set>
+#include <unordered_map>
 
 #include "Components.h"
+
+ inline void SubDivide(int A, int B, int C, int NumOfDiv, mesh_component& SphereModel)
+{
+    if(NumOfDiv > 0)
+    {
+        glm::vec3 v1 =glm::normalize(SphereModel.vertices[A].XYZ + SphereModel.vertices[B].XYZ);
+        glm::vec3 v2 =glm::normalize(SphereModel.vertices[A].XYZ+SphereModel.vertices[C].XYZ);
+        glm::vec3 v3 =glm::normalize(SphereModel.vertices[C].XYZ+SphereModel.vertices[B].XYZ );
+        
+
+        int index1 =SphereModel.vertices.size(); 
+        SphereModel.vertices.emplace_back(v1,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        int index2 = SphereModel.vertices.size();
+        SphereModel.vertices.emplace_back(v2,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        int index3 = SphereModel.vertices.size();
+        SphereModel.vertices.emplace_back(v3,glm::vec3(0.f),glm::vec3(1.f,0.f,0.f));
+        
+        SubDivide(A,index1,index2, NumOfDiv -1, SphereModel);
+        SubDivide(C,index2,index3, NumOfDiv -1,SphereModel);
+        SubDivide(B,index3,index1, NumOfDiv -1,SphereModel);
+        SubDivide(index3,index2,index1, NumOfDiv -1,SphereModel);
+    }
+    else
+    {
+        SphereModel.indices.emplace_back(A,B,C);
+    }
+}
+
+
+inline void CreateSphere(mesh_component& TempMesh)
+{
+    TempMesh.vertices.emplace_back(glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f), glm::vec3(0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(1.f, 0.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(-1.f, 0.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(0.f, -1.f, 0.f), glm::vec3(0.f), glm::vec3(0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(0.f, 0.f, -1.f), glm::vec3(0.f), glm::vec3(0.6f));
+
+    // Subdivide the sphere
+    int NumOfDiv = 4;
+    SubDivide(0, 1, 2, NumOfDiv, TempMesh);
+    SubDivide(0, 2, 3, NumOfDiv, TempMesh);
+    SubDivide(0, 3, 4, NumOfDiv, TempMesh);
+    SubDivide(0, 4, 1, NumOfDiv, TempMesh);
+    SubDivide(5, 2, 1, NumOfDiv, TempMesh);
+    SubDivide(5, 3, 2, NumOfDiv, TempMesh);
+    SubDivide(5, 4, 3, NumOfDiv, TempMesh);
+    SubDivide(5, 1, 4, NumOfDiv, TempMesh);
+
+    // Calculate normals
+    for (Triangle& index : TempMesh.indices) {
+        glm::vec3 normal = glm::cross(
+            TempMesh.vertices[index.B].XYZ - TempMesh.vertices[index.A].XYZ,TempMesh.vertices[index.C].XYZ - TempMesh.vertices[index.A].XYZ);
+        TempMesh.vertices[index.A].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.B].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.C].Normals += glm::normalize(normal);
+    }
+
+     TempMesh.bind();
+}
+
+ inline void CreatePlane(mesh_component& TempMesh)
+{
+    /*element.vertices.clear();
+    element.indices.clear();*/
+        
+    TempMesh.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+    TempMesh.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+
+        
+    TempMesh.indices.emplace_back(0,1,3);
+    TempMesh.indices.emplace_back(1,2,3);
+        
+    for (Triangle& index :  TempMesh.indices)
+    {
+        glm::vec3 normal = glm::cross(TempMesh.vertices[index.B].XYZ - TempMesh.vertices[index.A].XYZ, TempMesh.vertices[index.C].XYZ - TempMesh.vertices[index.A].XYZ);
+
+        TempMesh.vertices[index.A].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.B].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.C].Normals += glm::normalize(normal);
+    }
+     TempMesh.bind();
+}
+
 class Systems
 {
 public:
@@ -150,14 +237,16 @@ struct matrix_system : public Systems
 };
 
 
-
-
-  
-    
-
-
-struct plane_system : public Systems
+struct render_system : Systems
 {
+    std::unordered_map<std::string, mesh_component> MeshMap;
+    void CreateMeshes()
+    {
+        MeshMap["Sphere"];
+        CreateSphere(MeshMap["Sphere"]);
+        MeshMap["Plane"];
+        CreatePlane(MeshMap["Plane"]);
+    }
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override
     {
         component_handler<model_component> *model_handler = componentManager.get_component_handler<model_component>();
@@ -173,20 +262,30 @@ struct plane_system : public Systems
         glUseProgram(ShaderProgram);
 
         // Ensure the sizes match or handle mismatches appropriately
-        size_t min_size = std::min(models.size(), matrices.size());
+        //size_t min_size = std::min(models.size(), matrices.size());
 
-        for (size_t i = 0; i < min_size; ++i) {
-            const auto& model = models[i];
+        for (size_t i = 0; i < models.size(); ++i) {
+            const auto& mesh = MeshMap[models[i].MeshName];
             const auto& matrix = matrices[i];
 
             int modelLoc = glGetUniformLocation(ShaderProgram, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(matrix.ModelMatrix));
-            glBindVertexArray(model.VAO);
+            glBindVertexArray(mesh.VAO);
 
-            glDrawElements(GL_TRIANGLES, model.indices.size() * 3, GL_UNSIGNED_INT, 0);
+            glDrawElements(GL_TRIANGLES, mesh.indices.size() * 3, GL_UNSIGNED_INT, 0);
             
             glBindVertexArray(0);
         }
+    }
+};
+  
+    
+
+
+struct plane_system : public Systems
+{
+    void Update(unsigned int ShaderProgram, component_manager& componentManager) override
+    {
     }
     
 
@@ -196,49 +295,43 @@ void Draw ( component_manager& componentManager) override
 
         std::cout<<"Drawing Plane"<<std::endl;
         
-        component_handler<model_component>* modelHandler = componentManager.get_component_handler<model_component>();
-
-        if (!modelHandler) {
-            std::cerr << "Invalid component handler!" << std::endl;
-            return;
-        }
+        mesh_component TempMesh;
+        /*element.vertices.clear();
+        element.indices.clear();*/
         
-    for (auto &element : modelHandler->Components)
+        TempMesh.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        TempMesh.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        TempMesh.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        TempMesh.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+
+        
+        TempMesh.indices.emplace_back(0,1,3);
+        TempMesh.indices.emplace_back(1,2,3);
+        
+    for (Triangle& index :  TempMesh.indices)
     {
-        element.vertices.clear();
-        element.indices.clear();
-        
-        element.vertices.emplace_back(glm::vec3(5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-        element.vertices.emplace_back(glm::vec3(5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-        element.vertices.emplace_back(glm::vec3(-5.f, -0.5f, -5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
-        element.vertices.emplace_back(glm::vec3(-5.f, -0.5f, 5.f), glm::vec3(0.f), glm::vec3(0.5f, 0.f, 0.6f));
+        glm::vec3 normal = glm::cross(TempMesh.vertices[index.B].XYZ - TempMesh.vertices[index.A].XYZ, TempMesh.vertices[index.C].XYZ - TempMesh.vertices[index.A].XYZ);
 
-        
-        element.indices.emplace_back(0,1,3);
-        element.indices.emplace_back(1,2,3);
-        
-    for (Triangle& index : element.indices)
-    {
-        glm::vec3 normal = glm::cross(element.vertices[index.B].XYZ - element.vertices[index.A].XYZ, element.vertices[index.C].XYZ - element.vertices[index.A].XYZ);
-
-        element.vertices[index.A].Normals += glm::normalize(normal);
-        element.vertices[index.B].Normals += glm::normalize(normal);
-        element.vertices[index.C].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.A].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.B].Normals += glm::normalize(normal);
+        TempMesh.vertices[index.C].Normals += glm::normalize(normal);
     }
 
         
-        glGenVertexArrays(1, &element.VAO);
-        glGenBuffers(1, &element.VBO);
-        glGenBuffers(1, &element.EBO);
+        glGenVertexArrays(1, &TempMesh.VAO);
+        glBindVertexArray(TempMesh.VAO);
 
-        glBindVertexArray(element.VAO);
+        // Generate and bind the Vertex Buffer Object (VBO)
+        glGenBuffers(1, &TempMesh.VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, TempMesh.VBO);
+        glBufferData(GL_ARRAY_BUFFER, TempMesh.vertices.size() * sizeof(Vertex), TempMesh.vertices.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ARRAY_BUFFER, element.VBO);
-        glBufferData(GL_ARRAY_BUFFER, element.vertices.size() * sizeof(Vertex), element.vertices.data(), GL_STATIC_DRAW);
+        // Generate and bind the Element Buffer Object (EBO)
+        glGenBuffers(1, &TempMesh.EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TempMesh.EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, TempMesh.indices.size() * sizeof(Triangle), TempMesh.indices.data(), GL_STATIC_DRAW);
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, element.EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, element.indices.size() * sizeof(Triangle), element.indices.data(), GL_STATIC_DRAW);
-
+        // Set the vertex attribute pointers
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
         glEnableVertexAttribArray(0);
 
@@ -248,9 +341,12 @@ void Draw ( component_manager& componentManager) override
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(2);
 
+        // Unbind the VBO (optional)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // Unbind the VAO (optional)
         glBindVertexArray(0);
-    }
+    
 }
 };
 
@@ -280,4 +376,5 @@ struct test_system final : public Systems
     }
     
 };
+
 

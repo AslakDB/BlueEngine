@@ -20,6 +20,7 @@ Camera camera;
 entity_manager entityManager;
 component_manager componentManager;
 SystemManager systemManager;
+render_system renderSystem;
 
 bool firstMouse = true;
 
@@ -40,11 +41,17 @@ bool inside;
     
     Render() = default;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
-         
+        
+        renderSystem.CreateMeshes();
         model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
         
         Entity Sphere0 = entityManager.create_entity();
         if (Sphere0.ID == -1){std::cerr << "Failed to create entity." << std::endl;}
+
+        /*Entity Sphere1 = entityManager.create_entity();
+        if (Sphere1.ID == -1){std::cerr << "Failed to create entity." << std::endl;}
+        */
+        
         Entity TestEntity = entityManager.create_entity();
         if (TestEntity.ID == -1){std::cerr << "Failed to create test entity." << std::endl;}
 
@@ -54,28 +61,41 @@ bool inside;
        
         systemManager.AddSystem<matrix_system>(Plane0.ID);
         systemManager.AddSystem<plane_system>(Plane0.ID);
+        systemManager.AddSystem<render_system>(Plane0.ID);
 
        // systemManager.AddSystem<test_system>(TestEntity.ID);
        
         systemManager.AddSystem<sphere_system>(Sphere0.ID);
         systemManager.AddSystem<matrix_system>(Sphere0.ID);
+        systemManager.AddSystem<render_system>(Sphere0.ID);
+        /*systemManager.AddSystem<sphere_system>(Sphere1.ID);
+        systemManager.AddSystem<matrix_system>(Sphere1.ID);*/
         
-
         // Add components
-        componentManager.add_component<plane_component>(Plane0.ID);
+        componentManager.add_component<model_component>(Sphere0.ID);
+        componentManager.getComponent<model_component>(Sphere0.ID).MeshName = "Sphere";
         componentManager.add_component<model_component>(Plane0.ID);
+
+        
+        componentManager.add_component<plane_component>(Plane0.ID);
+        componentManager.add_component<mesh_component>(Plane0.ID);
         componentManager.add_component<transform_component>(Plane0.ID);
         componentManager.add_component<matrix_component>(Plane0.ID);
         
         componentManager.add_component<test_component>(TestEntity.ID);
-        componentManager.add_component<model_component>(Sphere0.ID);
+        componentManager.add_component<mesh_component>(Sphere0.ID);
         componentManager.add_component<sphere_component>(Sphere0.ID);
         componentManager.add_component<transform_component>(Sphere0.ID);
         componentManager.add_component<matrix_component>(Sphere0.ID);
 
+        /*componentManager.add_component<model_component>(Sphere1.ID);
+        componentManager.add_component<sphere_component>(Sphere1.ID);
+        componentManager.add_component<transform_component>(Sphere1.ID);
+        componentManager.add_component<matrix_component>(Sphere1.ID);*/
+
         // Setup sphere model radius
-        /*auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
-        sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;*/
+        auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
+        sphereHandler->Components[sphereHandler->index[Sphere0.ID]].radius = 0.5f;
         
         model floorPlane, ZWallP, ZWallN, XWallP, XWallN;
         std::vector<model*> models = { &floorPlane, &ZWallP, &ZWallN, &XWallP, &XWallN };
@@ -91,11 +111,10 @@ bool inside;
 
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
-
-        systemManager.draw_meshes<plane_system>(componentManager);
-        systemManager.draw_meshes<sphere_system>(componentManager);
         
-
+       /*systemManager.draw_meshes<plane_system>(componentManager);
+        systemManager.draw_meshes<sphere_system>(componentManager);*/
+        
         /*Plane.CreateFloor(floorPlane);
         Plane.CreateFloor(ZWallP);
         Plane.CreateFloor(ZWallN);
@@ -137,8 +156,11 @@ bool inside;
         
         while (!glfwWindowShouldClose(window))
             {
-          
-
+            /*component_handler<model_component> modelsHandler = *componentManager.get_component_handler<model_component>();
+                for (model_component value : modelsHandler->Components )
+                {
+                    
+                }*/
                 coll.SphereSphereCollision(sphere_models);
                 coll.SphereBoxCollision(sphere_models,models);
 
@@ -175,11 +197,13 @@ bool inside;
 
             glLineWidth(3);
             
-            systemManager.UpdateSystems<plane_system>(shaderProgram, componentManager);
-            systemManager.UpdateSystems<sphere_system>(shaderProgram, componentManager);
+
+
+            systemManager.UpdateSystems<render_system>(shaderProgram, componentManager);
             
             systemManager.UpdateSystems<matrix_system>(shaderProgram, componentManager);
-          
+
+            renderSystem.Update(shaderProgram, componentManager);
             
           
             for (model* element : sphere_models)

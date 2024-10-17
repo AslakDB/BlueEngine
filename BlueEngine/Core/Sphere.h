@@ -22,7 +22,8 @@ struct sphere_component : public Components
 struct sphere_system : public Systems
 {
     sphere_component sphere;
+    
     void Update(unsigned int ShaderProgram, component_manager& componentManager) override;
-   void SubDivide(int A, int B, int C, int NumOfDiv, model_component& SphereModel);
+   void SubDivide(int A, int B, int C, int NumOfDiv, mesh_component& SphereModel);
     void Draw(component_manager& componentManager)override; 
   };

@@ -64,6 +64,13 @@ struct component_manager
         
     }
     template <typename T>
+    T& getComponent(unsigned int id)
+    {
+        component_handler<T>* compPtr = get_component_handler<T>();
+
+        return compPtr->Components[compPtr->index[id]];
+    }
+    template <typename T>
     component_handler<T>* get_component_handler()
     {
         return static_cast<component_handler<T>*>(component_map[typeid(T).name()]);
@@ -119,21 +126,58 @@ struct test_component : public Components
     std::string TestString;
 };
 
-struct model_component : public Components
+struct mesh_component : public Components
 {
     unsigned int VBO, VAO, EBO;
     std::vector<Vertex> vertices;
     std::vector<Triangle> indices;
     std::vector<glm::vec3> corners;
 
-    model_component() :  VBO(0),VAO(0), EBO(0) { }
+    mesh_component() :  VBO(0),VAO(0), EBO(0) { }
 
-    ~model_component()
+    ~mesh_component()
     {
         if (VAO) glDeleteVertexArrays(1, &VAO);
         if (VBO) glDeleteBuffers(1, &VBO);
         if (EBO) glDeleteBuffers(1, &EBO);
     }
+
+    void bind()
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+
+        // Generate and bind the Vertex Buffer Object (VBO)
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
+
+        // Generate and bind the Element Buffer Object (EBO)
+        glGenBuffers(1, &EBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(Triangle), indices.data(), GL_STATIC_DRAW);
+
+        // Set the vertex attribute pointers
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+
+        // Unbind the VBO (optional)
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        // Unbind the VAO (optional)
+        glBindVertexArray(0);
+    }
     
     int modelLoc = 0;
+};
+
+struct model_component : public Components
+{
+    std::string MeshName  = "Plane";
 };
