@@ -35,9 +35,6 @@ void ProsessInput(GLFWwindow *window, float deltaTime, movement_component& MVM);
 struct Render {
 bool inside;
     bool isMovingForward;
-
-    
-
     
     Render() = default;
     void render(GLFWwindow* window, unsigned int shaderProgram, float deltaTime, float lastFrame) {
@@ -45,24 +42,19 @@ bool inside;
         renderSystem.CreateMeshes();
 
         std::vector<glm::vec3> EnemyPos;
-        std::vector<Entity> Enemies;
+        
 
-        model SphereModel0, SphereModel1, SphereModel2, SphereModel3, SphereModel4;
+     
         
         Entity Player = entityManager.create_entity();
         if (Player.ID == -1){std::cerr << "Failed to create entity." << std::endl;}
 
         
         Entity Enemy0 = entityManager.create_entity();
+        if (Enemy0.ID == -1){std::cerr << "Failed to create enemy entity." << std::endl;}
         Entity Enemy1 = entityManager.create_entity();
-        Entity Enemy2 = entityManager.create_entity();
-        Entity Enemy3 = entityManager.create_entity();
-        Entity Enemy4 = entityManager.create_entity();
-        Entity Enemy5 = entityManager.create_entity();
+       if (Enemy1.ID == -1){std::cerr << "Failed to create enemy entity." << std::endl;}
         
-        
-        Entity TestEntity = entityManager.create_entity();
-        if (TestEntity.ID == -1){std::cerr << "Failed to create test entity." << std::endl;}
 
         Entity Plane0 = entityManager.create_entity();
         if (Plane0.ID == -1){std::cerr << "Failed to create plane entity." << std::endl;}
@@ -72,17 +64,14 @@ bool inside;
         //systemManager.AddSystem<plane_system>(Plane0.ID);
         systemManager.AddSystem<render_system>();
         systemManager.AddSystem<movementSystem>();
+        systemManager.AddSystem<HealthSystem>();
 
        // systemManager.AddSystem<test_system>(TestEntity.ID);
-       
-       // systemManager.AddSystem<sphere_system>(Sphere0.ID);
-        //systemManager.AddSystem<matrix_system>(Sphere0.ID);
-        //systemManager.AddSystem<render_system>(Sphere0.ID);
-        /*systemManager.AddSystem<sphere_system>(Sphere1.ID);
-        systemManager.AddSystem<matrix_system>(Sphere1.ID);*/
+        
         
         // Add components
         componentManager.add_component<model_component>(Player.ID);
+        componentManager.add_component<health_component>(Player.ID);
         componentManager.add_component<transform_component>(Player.ID);
         componentManager.add_component<movement_component>(Player.ID);
         componentManager.add_component<mesh_component>(Player.ID);
@@ -90,85 +79,96 @@ bool inside;
         componentManager.add_component<matrix_component>(Player.ID);
         componentManager.getComponent<model_component>(Player.ID).MeshName = "Sphere";
         componentManager.getComponent<model_component>(Player.ID).colour = glm::vec3(1,0,0);
+        componentManager.getComponent<health_component>(Player.ID).health = 3;
        // componentManager.getComponent<movement_component>(Sphere0.ID).Velocity = glm::vec3(2, 0, 0) ;
+
         
+        componentManager.add_component<model_component>(Plane0.ID);
         componentManager.add_component<plane_component>(Plane0.ID);
        // componentManager.add_component<mesh_component>(Plane0.ID);
         componentManager.add_component<transform_component>(Plane0.ID);
+        componentManager.add_component<movement_component>(Plane0.ID);
+
         componentManager.add_component<matrix_component>(Plane0.ID);
-        componentManager.add_component<model_component>(Plane0.ID);
-        componentManager.getComponent<transform_component>(Plane0.ID).Scale = glm::vec3(1, 1, 10);
-        componentManager.getComponent<transform_component>(Plane0.ID).PlayerPos = glm::vec3(1, 0, -40);
+        componentManager.getComponent<model_component>(Plane0.ID).MeshName = "Plane";
+        componentManager.getComponent<transform_component>(Plane0.ID).Scale = glm::vec3(2, 1, 2);
+        componentManager.getComponent<transform_component>(Plane0.ID).PlayerPos = glm::vec3(0, 0, 0);
         
-        componentManager.add_component<test_component>(TestEntity.ID);
         
         
         
 
         componentManager.getComponent<transform_component>(Player.ID).PlayerPos = glm::vec3(0,0 , 2);
         componentManager.getComponent<transform_component>(Player.ID).Scale =  glm::vec3(0.5, 0.5,0.5);
+
         
         componentManager.add_component<model_component>(Enemy0.ID);
-        componentManager.add_component<sphere_component>(Enemy0.ID);
         componentManager.add_component<transform_component>(Enemy0.ID);
+        componentManager.add_component<movement_component>(Enemy0.ID);
+        componentManager.add_component<mesh_component>(Enemy0.ID);
+        componentManager.add_component<sphere_component>(Enemy0.ID);
         componentManager.add_component<matrix_component>(Enemy0.ID);
         componentManager.getComponent<model_component>(Enemy0.ID).MeshName = "Sphere";
-        
         componentManager.getComponent<transform_component>(Enemy0.ID).Scale =  glm::vec3(0.5, 0.5,0.5);
-     
 
-        EnemyPos.emplace_back(componentManager.getComponent<transform_component>(Enemy0.ID).PlayerPos);
+        componentManager.add_component<model_component>(Enemy1.ID);
+        componentManager.add_component<transform_component>(Enemy1.ID);
+        componentManager.add_component<movement_component>(Enemy1.ID);
+        componentManager.add_component<mesh_component>(Enemy1.ID);
+        componentManager.add_component<sphere_component>(Enemy1.ID);
+        componentManager.add_component<matrix_component>(Enemy1.ID);
+        componentManager.getComponent<model_component>(Enemy1.ID).MeshName = "Sphere";
+        componentManager.getComponent<transform_component>(Enemy1.ID).Scale =  glm::vec3(0.5, 0.5,0.5);
+        componentManager.getComponent<transform_component>(Enemy1.ID).PlayerPos = glm::vec3(3,0 , -2);
+        
+        
 
 
         // Setup sphere model radius
         auto* sphereHandler = static_cast<component_handler<sphere_component>*>(componentManager.component_map[typeid(sphere_component).name()]);
         sphereHandler->Components[sphereHandler->index[Player.ID]].radius = 0.5f;
-        
         model floorPlane, ZWallP, ZWallN, XWallP, XWallN;
         std::vector<model*> models = { &floorPlane, &ZWallP, &ZWallN, &XWallP, &XWallN };
         
         std::vector<model*> sphere_models;
         
-        sphere_models.emplace_back(&SphereModel0);
-        sphere_models.emplace_back(&SphereModel1);
-        sphere_models.emplace_back(&SphereModel2);
-        sphere_models.emplace_back(&SphereModel3);
-        sphere_models.emplace_back(&SphereModel4);
      
 
         glm::mat4 trans = glm::mat4(1.0f);
         glm::mat4 projection;
 
-        
-       /*systemManager.draw_meshes<plane_system>(componentManager);
-        systemManager.draw_meshes<sphere_system>(componentManager);*/
-        
-        /*Plane.CreateFloor(floorPlane);
-        Plane.CreateFloor(ZWallP);
-        Plane.CreateFloor(ZWallN);
-        Plane.CreateFloor(XWallP);
-        Plane.CreateFloor(XWallN);*/
-        
-        /*sphere.CreateSphere(SphereModel0);
-      sphere.CreateSphere(SphereModel1);
-      sphere.CreateSphere(SphereModel2);
-      sphere.CreateSphere(SphereModel3);
-        sphere.CreateSphere(SphereModel4);*/
-       //  componentManager.getComponent<movement_component>(Player.ID).Velocity = glm::vec3(1, 0, 0);
+        EnemyPos.emplace_back(componentManager.getComponent<transform_component>(Enemy0.ID).PlayerPos);
+                   EnemyPos.emplace_back(componentManager.getComponent<transform_component>(Enemy1.ID).PlayerPos);
+
+       
         while (!glfwWindowShouldClose(window))
             {
 
            
+           
             
+            glm::vec3 Enemy0direction = glm::normalize(componentManager.getComponent<transform_component>(Player.ID).PlayerPos - componentManager.getComponent<transform_component>(Enemy0.ID).PlayerPos);
+                       componentManager.getComponent<movement_component>(Enemy0.ID).Velocity = Enemy0direction * 0.5f;
+
+            glm::vec3 Enemy1direction = glm::normalize(componentManager.getComponent<transform_component>(Player.ID).PlayerPos - componentManager.getComponent<transform_component>(Enemy1.ID).PlayerPos);
+            componentManager.getComponent<movement_component>(Enemy1.ID).Velocity = Enemy1direction * 0.5f;
             if(coll.SphereSphereCollision(componentManager.getComponent<transform_component>(Player.ID).PlayerPos ,EnemyPos) == true)
             {
-                componentManager.getComponent<movement_component>(Player.ID).Velocity *= glm::vec3(-1);
-                
+              componentManager.getComponent<movement_component>(Player.ID).Velocity *= glm::vec3(-1);
+                componentManager.getComponent<health_component>(Player.ID).health -= 1;
             }
-                        
+
+            if (componentManager.getComponent<health_component>(Player.ID).health <= 0)
+            {
+                std::cout << "Player is dead" << std::endl;
+                break;
+            }
+
             
-                
-                //coll.SphereBoxCollision(sphere_models,models);
+
+            EnemyPos[0] = componentManager.getComponent<transform_component>(Enemy0.ID).PlayerPos;
+            EnemyPos[1] = componentManager.getComponent<transform_component>(Enemy1.ID).PlayerPos;
+            
 
             
             float currentFrame = glfwGetTime();

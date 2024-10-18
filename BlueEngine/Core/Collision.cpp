@@ -6,8 +6,6 @@ bool Collision::SphereSphereCollision(glm::vec3 playerPos, std::vector<glm::vec3
 
     for (auto element : otherPos)
     {
-        
-              
             glm::vec3 distanceVector = playerPos - element;
             float distanceSquared = glm::dot(distanceVector, distanceVector);
             float radiusSum = 2.0f * radius;
@@ -15,25 +13,6 @@ bool Collision::SphereSphereCollision(glm::vec3 playerPos, std::vector<glm::vec3
 
             if (distanceSquared < radiusSumSquared)
             {
-                /*glm::vec3 collisionNormal = glm::normalize(distanceVector);
-
-                glm::vec3 relativeVelocity = sphere_models[i]->Velocity - sphere_models[j]->Velocity;
-                float velocityAlongNormal = glm::dot(relativeVelocity, collisionNormal);
-                    
-                float e = -0.3f; 
-                    
-                float impulseMagnitude = (1 + e) * velocityAlongNormal;
-                
-                    
-                sphere_models[i]->Velocity -= impulseMagnitude * collisionNormal;
-                sphere_models[j]->Velocity += impulseMagnitude * collisionNormal;
-
-                
-                float overlap = radiusSum - sqrt(distanceSquared);
-                glm::vec3 separation = collisionNormal * (overlap / 2.0f);
-                sphere_models[i]->PlayerPos += separation;
-                sphere_models[j]->PlayerPos -= separation;
-                */
 
                 std::cout << "BallCollision" << '\n';
                 return true;
