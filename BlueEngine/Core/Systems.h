@@ -97,8 +97,6 @@ public:
     virtual void Draw( component_manager& componentManager ) {};
    virtual void Update(unsigned int ShaderProgram, component_manager& componentManager, float deltatime) = 0;
    std::pmr::set<Entity> mEntities;
-
-
 };
 
 
@@ -152,7 +150,6 @@ public:
         }
     }
 
-    
     template <typename T>
     void UpdateSystems(unsigned int ShaderSystem, component_manager& componentManager, float deltatime)
     {
